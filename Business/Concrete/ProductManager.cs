@@ -1,4 +1,7 @@
-﻿using Business.Abstract;
+﻿using Azure.Messaging;
+using Business.Abstract;
+using Business.Contants;
+using Core.Utilities.Result;
 using DataAccess.Abstract;
 using Entities.Concrete;
 using System;
@@ -18,34 +21,37 @@ namespace Business.Concrete
             _productDal = productDal;
         }
 
-        public void Add(Product product)
+        public IResult Add(Product product)
         {
             _productDal.Add(product);
+            return new SuccessResult(Messages.ProductAdded);
         }
 
-        public void Delete(Product product)
+        public IResult Delete(Product product)
         {
             _productDal.Delete(product);
+            return new SuccessResult(Messages.ProductDeleted);
         }
 
-        public List<Product> GetByCategoryId(int categoryId)
+        public IDataResult<List<Product>> GetByCategoryId(int categoryId)
         {
-            return _productDal.GetList(c => c.CategoryId == categoryId).ToList();
+            return new SuccessDataResult<List<Product>>(_productDal.GetList(c => c.CategoryId == categoryId).ToList());
         }
 
-        public Product GetById(int productId)
+        public IDataResult<Product> GetById(int productId)
         {
-            return _productDal.Get(p => p.ProductId == productId);  
+            return new SuccessDataResult<Product>(_productDal.Get(p => p.ProductId == productId));  
         }
 
-        public List<Product> GetList()
+        public IDataResult<List<Product>> GetList()
         {
-            return _productDal.GetList().ToList();
+            return new SuccessDataResult<List<Product>>(_productDal.GetList().ToList());
         }
 
-        public void Update(Product product)
+        public IResult Update(Product product)
         {
             _productDal.Update(product);
+            return new SuccessResult(Messages.ProductUpdated);
         }
     }
 }
