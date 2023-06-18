@@ -1,4 +1,8 @@
 
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using Business.DependecyResolvers.Autofac;
+
 namespace WebAPI
 {
     public class Program
@@ -6,6 +10,13 @@ namespace WebAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+
+            builder.Host.ConfigureContainer<ContainerBuilder>(builder =>
+            {
+                builder.RegisterModule(new AutofacBusinessModule());
+            });
 
             // Add services to the container.
 
