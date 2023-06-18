@@ -16,13 +16,13 @@ namespace Core.Utilities.Result
         {
         }
 
-        //public SuccessDataResult(string message):base(default,true,message)
-        //{
-        // kulanılabilecek diğer yönetemler.
-        //} 
-        //public SuccessDataResult():base(default,true)
-        //{
+        public SuccessDataResult(string message) : base(default, true, message)
+        {
+           // kulanılabilecek diğer yönetemler.
+        }
+        public SuccessDataResult() : base(default, true)
+        {
 
-        //}
+        }
     }
 }
