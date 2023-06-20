@@ -2,6 +2,7 @@
 using Business.Contants;
 using Core.Entities.Concrete;
 using Core.Utilities.Result;
+using Core.Utilities.Security.Hashing;
 using Core.Utilities.Security.Jwt;
 using Entities.Dtos;
 using System;
@@ -25,7 +26,11 @@ namespace Business.Concrete
 
         public IDataResult<AccessToken> CreateAccessToken(User user)
         {
-            throw new NotImplementedException();
+            var claims = _userService.GetClaims(user);
+
+            var accessToken = _tokenHelper.CreateToken(user, claims);
+
+            return new SuccessDataResult<AccessToken>(accessToken,Messages.AccessCreateToken);
         }
 
         public IDataResult<User> Login(UserForLoginDto userForLoginDto)
@@ -35,16 +40,43 @@ namespace Business.Concrete
             {
                 return new ErrorDataResult<User>(Messages.UserNotFound);
             }
+
+
+            if(!HashingHelper.VerifyPasswordHash(userForLoginDto.Password, userCheckResult.PasswordHash , userCheckResult.PasswordSalt))
+            {
+                return new ErrorDataResult<User>(Messages.PasswordNotFound);
+            }
+
+            return new SuccessDataResult<User>(userCheckResult,Messages.SuccessfulLogin);
         }
 
         public IDataResult<User> Register(UserForRegisterDto userForRegisterDto, string password)
         {
-            throw new NotImplementedException();
+            byte[] passwordHash, passwordSalt;
+            HashingHelper.CreatePasswordHash(password, out passwordHash, out passwordSalt);
+
+            var user = new User
+            {
+                Email = userForRegisterDto.Email,
+                FirstName = userForRegisterDto.FirstName,
+                LastName = userForRegisterDto.LastName,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt,
+                Status = true // bir verifikasyondan sonra aktive edilebilir kuruma göre değişir başlangıç değeri
+
+            };
+            _userService.Add(user);
+            return new SuccessDataResult<User>(user,Messages.UserRegistered);
+
         }
 
         public IResult UserExists(string email)
         {
-            throw new NotImplementedException();
+            if(_userService.GetByEmail(email) != null)
+            {
+                return new ErrorResult(Messages.UserAlreadyExists);
+            }
+            return new SuccessResult();
         }
     }
 }
