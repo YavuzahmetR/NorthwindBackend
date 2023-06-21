@@ -2,6 +2,10 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Business.DependecyResolvers.Autofac;
+using Core.Utilities.Security.Encryption;
+using Core.Utilities.Security.Jwt;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace WebAPI
 {
@@ -25,6 +29,34 @@ namespace WebAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowOrigin",
+                    builder => builder.WithOrigins("http://localhost:7017"));
+            });
+
+            var Configuration = builder.Configuration;
+
+            var tokenOptions = Configuration.GetSection("TokenOptions").Get<TokenOptions>();
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters { ValidateIssuer = true, ValidateAudience = true,
+
+
+                        ValidateLifetime = true, ValidIssuer = tokenOptions.Issuer, ValidAudience = tokenOptions.Audience, ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey)
+                   
+                      };
+                });
+            
+            
+
+                
+
+            
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -34,7 +66,11 @@ namespace WebAPI
                 app.UseSwaggerUI();
             }
 
+            app.UseCors(builder => builder.WithOrigins("https://localhost:7017").AllowAnyHeader());
+
             app.UseHttpsRedirection();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
