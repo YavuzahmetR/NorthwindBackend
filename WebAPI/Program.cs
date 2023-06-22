@@ -30,20 +30,18 @@ namespace WebAPI
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddCors(options =>
-            {
+            {   
                 options.AddPolicy("AllowOrigin",
-                    builder => builder.WithOrigins("http://localhost:7017"));
+                    builder => builder.WithOrigins("http://localhost:3000"));
             });
 
-            var Configuration = builder.Configuration;
+            
 
-            var tokenOptions = Configuration.GetSection("TokenOptions").Get<TokenOptions>();
+            var tokenOptions = builder.Configuration.GetSection("TokenOptions").Get<TokenOptions>();
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters { ValidateIssuer = true, ValidateAudience = true,
-
-
                         ValidateLifetime = true, ValidIssuer = tokenOptions.Issuer, ValidAudience = tokenOptions.Audience, ValidateIssuerSigningKey = true,
                         IssuerSigningKey = SecurityKeyHelper.CreateSecurityKey(tokenOptions.SecurityKey)
                    
@@ -66,7 +64,7 @@ namespace WebAPI
                 app.UseSwaggerUI();
             }
 
-            app.UseCors(builder => builder.WithOrigins("https://localhost:7017").AllowAnyHeader());
+            app.UseCors(builder => builder.WithOrigins("http://localhost:3000").AllowAnyHeader());
 
             app.UseHttpsRedirection();
 
