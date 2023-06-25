@@ -30,4 +30,4 @@ Bu kurs ↓
 
 。Extension yazma
 
-Konularını öğrenmeye başladığım udemy kursudur.
+Gibi konular içermektedir.
